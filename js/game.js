@@ -209,14 +209,15 @@ if (G.phase !== 'playing' || G.paused) return;
 const r = G.round;
 const b = r.buffer;
 if (!b) { bus.emit('reject', { reason: 'empty' }); return; }
-if (b.length !== 1 && b.length !== r.len) { bus.emit('reject', { reason: 'length', need: r.len, have: b.length }); return; }
+const letters = HM.feature('LetterGuesses');
+if (b.length !== r.len && !(letters && b.length === 1)) { bus.emit('reject', { reason: 'length', need: r.len, have: b.length, letters }); return; }
 registerKey();
 r.submits++;
 const dur = r.guessStartAt ? Math.max(0.05, now() - r.guessStartAt) : 1;
 const burst = b.length >= 4 ? (b.length + 1) / dur : 0;
 r.buffer = ''; r.guessStartAt = null;
 bus.emit('buffer', { buffer: '', submitted: b });
-if (b.length === 1 && r.len !== 1) guessLetter(b);
+if (letters && b.length === 1 && r.len !== 1) guessLetter(b);
 else guessWord(b, burst);
 }
 function letterStates() {

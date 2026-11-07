@@ -65,6 +65,11 @@
 <div class="kps-bar"><div id="kps-fill"></div></div>
 <div class="sub">BEST <span id="kps-best">0.0</span></div>
 </div>
+<div class="panel solve-panel" id="solve-panel">
+<div class="lbl">AVG SOLVE</div>
+<div id="avg-solve" class="big">--</div>
+<div class="sub">ALL RUNS <span id="avg-solve-all">--</span></div>
+</div>
 <div class="panel stats">
 <div><span class="lbl">FLAWLESS</span><span id="streak">0</span></div>
 <div><span class="lbl">FLAIR</span><span id="flair">0</span></div>
@@ -156,8 +161,7 @@
 <ul>
 <li>A word is hidden under the tiles. You have <b id="help-secs">60</b> seconds to crack it. Clock hits zero = <b>run over</b>.</li>
 <li><b>Unlimited guesses.</b> Type, then hit <kbd>SPACE</kbd> to submit.</li>
-<li>Type <b>1 letter</b> to guess a letter: every copy flips. A wrong letter costs <b id="help-lp">2</b>s.</li>
-<li>Type the <b>whole word</b> to solve it. Wrong words are free (unless HARDCORE) and any letters in the right spot still flip.</li>
+<li>Only <b>whole words</b> count: type every letter, then <kbd>SPACE</kbd>. Wrong words are free (unless HARDCORE).</li>
 <li>Nail the whole word on your <b>first guess</b> for a <b>FIRST TRY!</b></li>
 <li>Type the whole word fast and watch the <b>KPS</b> meter catch fire.</li>
 <li>The <b>CLUE BOX</b> starts with 1 clue. Another unlocks every <b id="help-clue">15</b>s of clock used (penalties speed that up).</li>
@@ -192,7 +196,7 @@
 <canvas id="fx"></canvas>
 <canvas id="melt" class="pix"></canvas>
 <div id="crt"></div>
-<script>window.HM_RELEASE=true;window.HM_BUILD="v0.4.0 · 2026-11-07 03:48 UTC";</script>
+<script>window.HM_RELEASE=true;window.HM_BUILD="v0.5.0 · 2026-11-07 04:11 UTC";</script>
 <script src="js/config.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/words.js"></script>

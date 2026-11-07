@@ -118,8 +118,12 @@ for (const ch of buf) b.appendChild(el('div', 'bchar', ch));
 b.appendChild(el('div', 'caret'));
 const m = $('#buffer-mode');
 m.className = '';
-if (!buf.length) m.textContent = `TYPE A LETTER OR THE ${len}-LETTER WORD`;
-else if (buf.length === 1 && len !== 1) { m.textContent = 'LETTER GUESS · SPACE'; m.classList.add('ok'); }
+const letters = HM.feature('LetterGuesses');
+if (!buf.length) {
+if (letters) m.textContent = `TYPE A LETTER OR THE ${len}-LETTER WORD`;
+else { m.classList.add('hint'); m.innerHTML = `<span class="len-num">${len}</span>-LETTER WORD`; }
+}
+else if (letters && buf.length === 1 && len !== 1) { m.textContent = 'LETTER GUESS · SPACE'; m.classList.add('ok'); }
 else if (buf.length === len) { m.textContent = 'WORD GUESS · SPACE'; m.classList.add('ok'); }
 else { m.textContent = `${buf.length}/${len}`; }
 }
@@ -291,8 +295,26 @@ $('#streak').textContent = run.streak;
 $('#flair').textContent = run.flourishes.length;
 $('#solved-count').textContent = run.solved.filter(s => s.method !== 'skip').length;
 $('#firsttries').textContent = run.firstTries || 0;
+renderAvgSolve(run);
 $('#hc-badge').classList.toggle('hidden', !run.hardcore);
 updateChipsMult();
+}
+const SOLVE_KEY = 'hm_solvetime';
+function solveTotals() { try { const t = JSON.parse(localStorage.getItem(SOLVE_KEY) || '{}'); return { n: +t.n || 0, total: +t.total || 0 }; } catch (e) { return { n: 0, total: 0 }; } }
+function recordSolveTime(secs) {
+if (!(secs >= 0)) return;
+const t = solveTotals(); t.n += 1; t.total += secs;
+try { localStorage.setItem(SOLVE_KEY, JSON.stringify(t)); } catch (e) { }
+}
+function fmtSecs(s) { return s == null ? '--' : (s < 100 ? s.toFixed(1) : Math.round(s)) + 's'; }
+function runAvgSolve(run) {
+const done = (run && run.solved || []).filter(s => s.method !== 'skip' && s.secs >= 0);
+return done.length ? done.reduce((a, s) => a + s.secs, 0) / done.length : null;
+}
+function renderAvgSolve(run) {
+const el = $('#avg-solve'); if (!el) return;
+el.textContent = fmtSecs(runAvgSolve(run));
+const t = solveTotals(); $('#avg-solve-all').textContent = fmtSecs(t.n ? t.total / t.n : null);
 }
 function liveMult() {
 const r = Game.G.round, c = cfg();
@@ -346,6 +368,7 @@ if (S.keyFlames > 0.033) { S.keyFlames = 0; FX.flames(p.getBoundingClientRect(),
 }
 function wire() {
 bus.on('run:start', run => {
+renderAvgSolve(run); $('#solve-panel').classList.remove('faster', 'slower');
 S.shownScore = 0; $('#score').textContent = '0';
 $('#tiles').innerHTML = ''; $('#cb-list').innerHTML = ''; $('#cb-next').textContent = ''; $('#ticker-track').innerHTML = ''; S.ticker.entry = null;
 $('#pinned').innerHTML = ''; $('#buffer').innerHTML = ''; $('#buffer-mode').textContent = '';
@@ -392,7 +415,7 @@ const b = $('#buffer'); b.classList.remove('reject'); void b.offsetWidth; b.clas
 Au.reject();
 const m = $('#buffer-mode');
 m.className = 'bad';
-m.textContent = d.reason === 'length' ? `NEED 1 LETTER OR ${d.need} — YOU HAVE ${d.have}` : d.reason === 'repeat' ? `ALREADY TRIED "${d.letter.toUpperCase()}" (FREE)` :
+m.textContent = d.reason === 'length' ? (d.letters ? `NEED 1 LETTER OR ${d.need} — YOU HAVE ${d.have}` : `ALL ${d.need} LETTERS — YOU HAVE ${d.have}`) : d.reason === 'repeat' ? `ALREADY TRIED "${d.letter.toUpperCase()}" (FREE)` :
 d.reason === 'known' ? `"${d.letter.toUpperCase()}" IS ALREADY SHOWING (FREE)` : d.reason === 'eliminated' ? `"${d.letter.toUpperCase()}" WAS CROSSED OUT (FREE)` : 'TYPE SOMETHING FIRST';
 });
 bus.on('reveal', d => {
@@ -484,6 +507,12 @@ bus.on('solve', d => {
 S.solveAt = performance.now();
 hushSpeech();
 const r = Game.G.round, run = Game.G.run;
+if (d.method !== 'skip' && d.rec) {
+const prev = runAvgSolve({ solved: run.solved.filter(x => x !== d.rec) });
+recordSolveTime(d.rec.secs); renderAvgSolve(run);
+const p = $('#solve-panel'); p.classList.remove('faster', 'slower');
+if (prev != null) { void p.offsetWidth; p.classList.add(d.rec.secs <= prev ? 'faster' : 'slower'); setTimeout(() => p.classList.remove('faster', 'slower'), 1600); }
+}
 if (d.method === 'word' && d.hidden) $$('#tiles .tile:not(.rev)').forEach(t => t.classList.add('blind'));
 Au.solve(); S.avatar.hit('solve'); HM.BG.pulse(1.2);
 const tc = FX.centerOf($('#tiles'));
@@ -632,15 +661,14 @@ g.appendChild(c);
 });
 }
 const SETTINGS = [
-...(window.HM_RELEASE ? [] : [['sec', 'FEATURE FLAGS'], ['featureScoring', 'Scoring (points, score perks)', 'bool'], ['featureSwirlBg', 'Swirl background (reload)', 'bool'], ['featureFirstTryBonus', 'First-try time bonus (banked)', 'bool']]),
+...(window.HM_RELEASE ? [] : [['sec', 'FEATURE FLAGS'], ['featureScoring', 'Scoring (points, score perks)', 'bool'], ['featureSwirlBg', 'Swirl background (reload)', 'bool'], ['featureFirstTryBonus', 'First-try time bonus (banked)', 'bool'], ['featureLetterGuesses', 'Letter guesses (1 letter + SPACE)', 'bool'], ['wrongLetterPenalty', 'Wrong letter penalty (s)', 'num'], ['hardcoreLetterPenalty', 'Hardcore: wrong letter (s)', 'num'], ['wordGuessRevealsPositions', 'Wrong words flip right-spot letters', 'bool']]),
 ['sec', 'LOOK'],
 ['theme', 'Theme / skin', 'select'],
 ['crt', 'CRT scanlines', 'bool'], ['screenShake', 'Screen shake', 'bool'], ['fxIntensity', 'FX intensity (0-2)', 'num'],
 ['sec', 'SOUND'], ['sound', 'Sound', 'bool'], ['volume', 'Volume (0-1)', 'num'],
 ['sec', 'TIMER'],
-['roundSeconds', 'Seconds per word', 'num'], ['wrongLetterPenalty', 'Wrong letter penalty (s)', 'num'], ['wrongWordPenalty', 'Wrong word penalty (s)', 'num'],
-['hardcore', 'Hardcore mode (next run)', 'bool'], ['hardcoreWordPenalty', 'Hardcore: wrong word (s)', 'num'], ['hardcoreLetterPenalty', 'Hardcore: wrong letter (s)', 'num'],
-['wordGuessRevealsPositions', 'Wrong words flip right-spot letters', 'bool'],
+['roundSeconds', 'Seconds per word', 'num'], ['wrongWordPenalty', 'Wrong word penalty (s)', 'num'],
+['hardcore', 'Hardcore mode (next run)', 'bool'], ['hardcoreWordPenalty', 'Hardcore: wrong word (s)', 'num'],
 ['sec', 'PROGRESSION'],
 ['levelsPerTier', 'Words per tier', 'num'], ['beltSize', 'Perk slots (needs new run)', 'num'], ['draftChoices', 'Perks offered per draft', 'num'], ['startingDraft', 'Perk pick before level 1', 'bool'],
 ['sec', 'KPS THRESHOLDS'], ['kpsHot', 'Hot at', 'num'], ['kpsFire', 'On fire at', 'num'], ['kpsInferno', 'Inferno at', 'num'],

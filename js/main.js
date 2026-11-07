@@ -42,7 +42,6 @@ document.body.classList.toggle('no-scoring', !c.featureScoring);
 $('#crt').style.display = c.crt ? '' : 'none';
 Au.setVolume(c.volume);
 $('#help-secs').textContent = c.roundSeconds;
-$('#help-lp').textContent = c.hardcore ? c.hardcoreLetterPenalty : c.wrongLetterPenalty;
 $('#help-tier').textContent = c.levelsPerTier;
 $('#help-clue').textContent = c.clueInterval;
 }

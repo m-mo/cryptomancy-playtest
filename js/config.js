@@ -2,6 +2,7 @@ window.HM = window.HM || {};
 HM.DEFAULT_CONFIG = {
 featureScoring: false,
 featureSwirlBg: false,
+featureLetterGuesses: false,
 featureFirstTryBonus: false,
 roundSeconds: 60,
 wrongLetterPenalty: 2,

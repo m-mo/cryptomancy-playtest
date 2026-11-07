@@ -75,6 +75,11 @@ HM.rollPerks = function (n, tier, exclude = []) {
 const out = [];
 const ex = new Set(exclude);
 if (!HM.feature('Scoring')) P.forEach(p => { if (p.fam === 'score') ex.add(p.id); });
+const c = HM.config, run = HM.Game && HM.Game.G.run, hard = run ? run.hardcore : c.hardcore;
+const letters = HM.feature('LetterGuesses');
+if (!letters) ex.add('hourglass');
+const missCosts = (letters && (hard ? c.hardcoreLetterPenalty : c.wrongLetterPenalty) > 0) || (hard ? c.hardcoreWordPenalty : c.wrongWordPenalty) > 0;
+if (!missCosts) ['shield1', 'shield2', 'shield3'].forEach(id => ex.add(id));
 for (let k = 0; k < n; k++) {
 const pool = P.filter(p => !ex.has(p.id) && !out.includes(p));
 if (!pool.length) break;
