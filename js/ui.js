@@ -168,6 +168,7 @@ if (after) track.insertBefore(node, after); else track.appendChild(node);
 }
 function tickerUpdate(dt) {
 const T = S.ticker; if (!T.entry) return;
+if (!$('#ticker').offsetParent) return;
 const track = $('#ticker-track');
 T.x -= (cfg().tickerSpeed || 70) * dt;
 const first = track.firstElementChild;
@@ -299,13 +300,6 @@ renderAvgSolve(run);
 $('#hc-badge').classList.toggle('hidden', !run.hardcore);
 updateChipsMult();
 }
-const SOLVE_KEY = 'hm_solvetime';
-function solveTotals() { try { const t = JSON.parse(localStorage.getItem(SOLVE_KEY) || '{}'); return { n: +t.n || 0, total: +t.total || 0 }; } catch (e) { return { n: 0, total: 0 }; } }
-function recordSolveTime(secs) {
-if (!(secs >= 0)) return;
-const t = solveTotals(); t.n += 1; t.total += secs;
-try { localStorage.setItem(SOLVE_KEY, JSON.stringify(t)); } catch (e) { }
-}
 function fmtSecs(s) { return s == null ? '--' : (s < 100 ? s.toFixed(1) : Math.round(s)) + 's'; }
 function runAvgSolve(run) {
 const done = (run && run.solved || []).filter(s => s.method !== 'skip' && s.secs >= 0);
@@ -314,7 +308,6 @@ return done.length ? done.reduce((a, s) => a + s.secs, 0) / done.length : null;
 function renderAvgSolve(run) {
 const el = $('#avg-solve'); if (!el) return;
 el.textContent = fmtSecs(runAvgSolve(run));
-const t = solveTotals(); $('#avg-solve-all').textContent = fmtSecs(t.n ? t.total / t.n : null);
 }
 function liveMult() {
 const r = Game.G.round, c = cfg();
@@ -509,7 +502,7 @@ hushSpeech();
 const r = Game.G.round, run = Game.G.run;
 if (d.method !== 'skip' && d.rec) {
 const prev = runAvgSolve({ solved: run.solved.filter(x => x !== d.rec) });
-recordSolveTime(d.rec.secs); renderAvgSolve(run);
+renderAvgSolve(run);
 const p = $('#solve-panel'); p.classList.remove('faster', 'slower');
 if (prev != null) { void p.offsetWidth; p.classList.add(d.rec.secs <= prev ? 'faster' : 'slower'); setTimeout(() => p.classList.remove('faster', 'slower'), 1600); }
 }

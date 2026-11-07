@@ -232,6 +232,7 @@ background: var(--panel); border-radius: 5px; box-shadow: 0 3px 0 var(--panel-ed
 50% { color: #fff; text-shadow: 0 0 8px #fff, 0 0 18px #ff2a3d; }
 }
 @media (prefers-reduced-motion: reduce) { #buffer-mode .len-num { animation: none; } }
+@media (max-width: 899px) { #ticker { display: none; } }
 #buffer.reject { animation: shake .08s 4; }
 #keyboard { display: flex; flex-direction: column; gap: 5px; align-items: center; padding-bottom: 6px; }
 .krow { display: flex; gap: 5px; }
