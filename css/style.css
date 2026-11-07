@@ -93,7 +93,7 @@ text-shadow: 2px 2px 0 rgba(0,0,0,.35); transition: transform .1s;
 .kps-panel { position: relative; overflow: visible; transition: background .2s; }
 .kps-bar { height: 6px; background: var(--panel-2); border-radius: 3px; overflow: hidden; margin: 4px 0; }
 #kps-fill { height: 100%; width: 0%; background: var(--good); transition: width .1s, background .2s; }
-.kps-panel .sub, .solve-panel .sub { font-size: 13px; color: var(--ink-dim); }
+.kps-panel .sub { font-size: 13px; color: var(--ink-dim); }
 .solve-panel .big { transition: color .3s; }
 .solve-panel.faster .big { color: var(--good); }
 .solve-panel.slower .big { color: var(--warn); }
@@ -139,7 +139,7 @@ background: var(--panel-2); border: 2px solid var(--gold); box-shadow: var(--sha
 .tooltip .tt-desc { font-size: 17px; line-height: 1.15; }
 .tooltip .tt-cta { margin-top: 8px; font-family: var(--font-display); font-size: 12px; color: var(--good); }
 .tooltip .tt-cta.bad { color: var(--bad); }
-#ticker { width: min(100%, 900px); display: flex; align-items: stretch; background: var(--panel-2); border-radius: var(--radius); border: 2px solid var(--panel-hi); overflow: hidden; height: 34px; flex: none; }
+#ticker { margin-top: 28px; width: min(100%, 900px); display: flex; align-items: stretch; background: var(--panel-2); border-radius: var(--radius); border: 2px solid var(--panel-hi); overflow: hidden; height: 34px; flex: none; }
 #ticker-label { font-family: var(--font-display); font-size: 12px; background: var(--accent); color: #fff; padding: 0 10px; display: flex; align-items: center; flex: none; }
 #ticker-view { position: relative; flex: 1; overflow: hidden; }
 #ticker-track { position: absolute; left: 0; top: 0; height: 100%; display: flex; align-items: center; white-space: nowrap; will-change: transform; }
@@ -365,6 +365,7 @@ body.paused #stage { filter: blur(3px); }
 .key { width: 28px; height: 34px; font-size: 13px; }
 .key.space { width: 140px; }
 #belt { min-height: 90px; }
+#ticker { margin-top: 10px; }
 .perk-card { width: 78px; height: 90px; }
 .over-grid { grid-template-columns: 1fr; height: auto; overflow: auto; }
 #center { grid-template-columns: auto auto; grid-template-rows: auto auto; flex: 0 0 auto; }
