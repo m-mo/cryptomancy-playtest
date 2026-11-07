@@ -45,7 +45,6 @@ $('#help-secs').textContent = c.roundSeconds;
 $('#help-lp').textContent = c.hardcore ? c.hardcoreLetterPenalty : c.wrongLetterPenalty;
 $('#help-tier').textContent = c.levelsPerTier;
 $('#help-clue').textContent = c.clueInterval;
-$('#help-ft').textContent = c.firstTryBonusSeconds;
 }
 function pickVessel(mode) {
 selMode = mode;

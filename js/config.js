@@ -2,6 +2,7 @@ window.HM = window.HM || {};
 HM.DEFAULT_CONFIG = {
 featureScoring: false,
 featureSwirlBg: false,
+featureFirstTryBonus: false,
 roundSeconds: 60,
 wrongLetterPenalty: 2,
 wrongWordPenalty: 0,
@@ -12,7 +13,7 @@ wordGuessRevealsPositions: false,
 lowTimeWarning: 10,
 levelsPerTier: 3,
 maxTier: 10,
-endlessTimeShrink: 3,
+endlessTimeShrink: 0,
 minRoundSeconds: 20,
 flourishesPerTierClear: 2,
 beltSize: 3,
@@ -70,6 +71,7 @@ if (q.has('hardcore')) url.hardcore = true;
 if (q.has('theme')) url.theme = q.get('theme');
 if (q.has('scoring')) url.featureScoring = true;
 if (q.has('swirl')) url.featureSwirlBg = true;
+if (q.has('ftbonus')) url.featureFirstTryBonus = true;
 Object.assign(cfg, url);
 HM._urlOverrides = url;
 HM.DEBUG = q.has('debug') && !window.HM_RELEASE;

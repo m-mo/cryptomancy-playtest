@@ -327,10 +327,11 @@ run.solveSeq = (run.solveSeq || 0) + 1;
 run.bestKps = Math.max(run.bestKps, k, r.peakKps);
 const rec = { w: r.word, tier: r.tier, endless: r.endless, level: run.level, secs: Math.round(r.elapsed * 10) / 10, kps: Math.round(k * 10) / 10, score, method, hidden,
 wrong: r.wrongCount, letters: r.guessed.size + r.wrong.size, clues: r.cluesShown, timeLeft: Math.round(r.timeLeft * 10) / 10, chips, mult, firstTry };
-if (firstTry) { run.firstTries = (run.firstTries || 0) + 1; run.bonusNext = (run.bonusNext || 0) + c.firstTryBonusSeconds; }
+const ftBonus = firstTry && HM.feature('FirstTryBonus') ? c.firstTryBonusSeconds : 0;
+if (firstTry) { run.firstTries = (run.firstTries || 0) + 1; run.bonusNext = (run.bonusNext || 0) + ftBonus; }
 run.solved.push(rec);
 const newF = awardTierFlair();
-bus.emit('solve', { method, hidden, chips, mult, score, kps: k, kpsLevel: kl, notes, rec, flourishes: newF, timeLeft: r.timeLeft, tierClear: newF.tierClear, firstTry, bonus: firstTry ? c.firstTryBonusSeconds : 0 });
+bus.emit('solve', { method, hidden, chips, mult, score, kps: k, kpsLevel: kl, notes, rec, flourishes: newF, timeLeft: r.timeLeft, tierClear: newF.tierClear, firstTry, bonus: ftBonus });
 }
 function awardTierFlair() {
 const run = G.run, out = [];

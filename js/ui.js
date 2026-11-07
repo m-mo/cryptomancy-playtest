@@ -506,7 +506,7 @@ const tc2 = FX.centerOf($('#tiles')); FX.ring(tc2.x, tc2.y, '#ffd166', 8, 0.7);
 const scoring = HM.feature('Scoring');
 const kpsTag = ['', 'HOT HANDS', 'ON FIRE', 'INFERNO'][d.kpsLevel];
 const statLine = d.method === 'skip' ? '' : `${d.rec.secs}s · ${d.kps.toFixed(1)} KPS${d.rec.wrong ? ` · ${d.rec.wrong} miss${d.rec.wrong > 1 ? 'es' : ''}` : ' · FLAWLESS'}`;
-const notes = scoring ? d.notes.join(' · ') : [kpsTag, d.firstTry ? `+${d.bonus}s BANKED FOR THE NEXT WORD` : ''].filter(Boolean).join(' · ');
+const notes = scoring ? d.notes.join(' · ') : [kpsTag, d.bonus ? `+${d.bonus}s BANKED FOR THE NEXT WORD` : ''].filter(Boolean).join(' · ');
 const flair = d.tierClear && d.flourishes.length ? `<div class="sb-flair">TIER CLEARED · NEW FLAIR: ${d.flourishes.map(id => (HM.Avatar.BY_ID[id] || {}).name || id).join(' + ').toUpperCase()}</div>` : (d.tierClear ? '<div class="sb-flair">TIER CLEARED</div>' : '');
 ban.innerHTML = `<div class="sb-title">${title}</div>` +
 (scoring && d.method !== 'skip' ? `<div class="sb-score"><span class="chips">${fmt(d.chips)}</span><span>X</span><span class="mult">${d.mult}</span></div><div class="sb-total">+${fmt(d.score)}</div>` : '') +
@@ -632,7 +632,7 @@ g.appendChild(c);
 });
 }
 const SETTINGS = [
-...(window.HM_RELEASE ? [] : [['sec', 'FEATURE FLAGS'], ['featureScoring', 'Scoring (points, score perks)', 'bool'], ['featureSwirlBg', 'Swirl background (reload)', 'bool']]),
+...(window.HM_RELEASE ? [] : [['sec', 'FEATURE FLAGS'], ['featureScoring', 'Scoring (points, score perks)', 'bool'], ['featureSwirlBg', 'Swirl background (reload)', 'bool'], ['featureFirstTryBonus', 'First-try time bonus (banked)', 'bool']]),
 ['sec', 'LOOK'],
 ['theme', 'Theme / skin', 'select'],
 ['crt', 'CRT scanlines', 'bool'], ['screenShake', 'Screen shake', 'bool'], ['fxIntensity', 'FX intensity (0-2)', 'num'],
