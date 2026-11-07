@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRYPTOMANCY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="crypt">
+<canvas id="bg" class="pix"></canvas>
+<div id="app">
+<section id="scr-title" class="screen active">
+<div class="title-wrap">
+<h1 class="logo" data-theme-text="title"><span>CRYPTO</span><span class="logo-skull"></span><span>MANCY</span></h1>
+<div class="subtitle" data-theme-text="subtitle">a roguelite of words &amp; bones</div>
+<canvas id="title-avatar" class="pix title-avatar"></canvas>
+<div class="menu">
+<button class="btn btn-primary" data-act="play">NEW RUN <kbd>SPACE</kbd></button>
+<button class="btn" data-act="trophies">TROPHY CASE <kbd>T</kbd></button>
+<button class="btn" data-act="help">HOW TO PLAY <kbd>H</kbd></button>
+<button class="btn" data-act="settings">SETTINGS <kbd>O</kbd></button>
+</div>
+<div class="foot"><span id="build-tag">dev</span> &middot; <span id="best-label">best run</span> <span id="best-score">0</span> &middot; <span id="word-count">0</span> words in the pool</div>
+</div>
+</section>
+<section id="scr-select" class="screen">
+<h2 class="screen-title">CHOOSE YOUR VESSEL</h2>
+<div class="vessels">
+<div class="vessel panel" data-mode="skull">
+<canvas id="sel-skull" class="pix"></canvas>
+<div class="v-name">THE SKULL</div>
+<div class="v-desc">A floating head with room for a lot of hats.</div>
+</div>
+<div class="vessel panel" data-mode="skeleton">
+<canvas id="sel-skel" class="pix"></canvas>
+<div class="v-name">THE HANGED</div>
+<div class="v-desc">Classic gallows. Kicks when the clock runs low.</div>
+</div>
+</div>
+<div class="hint-line"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> choose &middot; <kbd>SPACE</kbd> begin &middot; <kbd>ESC</kbd> back</div>
+<label class="hc-toggle"><input type="checkbox" id="sel-hardcore"> HARDCORE MODE <span class="dim">(wrong words cost time<span class="feat-scoring">, x1.5 score</span>) · <kbd>H</kbd></span></label>
+</section>
+<section id="scr-game" class="screen">
+<aside id="side">
+<div class="panel side-head">
+<div id="tier-label" class="tier-label">TIER 1</div>
+<div id="level-label" class="level-label">LEVEL 1 <span class="dim">/ 5</span></div>
+<div id="hc-badge" class="hc-badge hidden">HARDCORE</div>
+</div>
+<div class="panel score-panel feat-scoring">
+<div class="lbl">RUN SCORE</div>
+<div id="score" class="big">0</div>
+</div>
+<div class="panel cm-panel feat-scoring">
+<div class="lbl">THIS WORD</div>
+<div class="cm"><div id="chips" class="chips">0</div><div class="x">X</div><div id="mult" class="mult">1</div></div>
+</div>
+<div class="panel kps-panel" id="kps-panel">
+<div class="lbl">KEYS / SEC</div>
+<div id="kps" class="big">0.0</div>
+<div class="kps-bar"><div id="kps-fill"></div></div>
+<div class="sub">BEST <span id="kps-best">0.0</span></div>
+</div>
+<div class="panel stats">
+<div><span class="lbl">FLAWLESS</span><span id="streak">0</span></div>
+<div><span class="lbl">FLAIR</span><span id="flair">0</span></div>
+<div><span class="lbl">SOLVED</span><span id="solved-count">0</span></div>
+<div><span class="lbl">FIRST TRIES</span><span id="firsttries">0</span></div>
+</div>
+<button class="btn small" data-act="pause">PAUSE <kbd>ESC</kbd></button>
+</aside>
+<main id="stage">
+<div id="belt"></div>
+<div id="ticker"><div id="ticker-label">WHISPERS</div><div id="ticker-view"><div id="ticker-track"></div></div></div>
+<div id="center">
+<div id="timer-wrap">
+<div id="timer">60</div>
+<div id="timer-bar"><div id="timer-fill"></div></div>
+<div id="timer-mods"></div>
+</div>
+<canvas id="avatar" class="pix"></canvas>
+<div id="speech" class="speech hidden"><div class="sp-tag"></div><div class="sp-text"></div></div>
+<div id="cluebox" class="panel">
+<div class="cb-head"><span>CLUES</span><span id="cb-next" class="dim"></span></div>
+<div id="cb-list"></div>
+<div id="pinned"></div>
+</div>
+</div>
+<div id="jumble" class="hidden"></div>
+<div id="tiles"></div>
+<div id="buffer-wrap"><div id="buffer"></div><div id="buffer-mode"></div></div>
+<div id="keyboard"></div>
+</main>
+<div id="tooltip" class="tooltip hidden"></div>
+<div id="toasts"></div>
+<div id="solve-banner" class="hidden"></div>
+</section>
+<section id="scr-over" class="screen">
+<div class="over-grid">
+<div class="panel over-trophy">
+<h2 class="over-title" data-theme-text="overTitle">HANGED.</h2>
+<div class="pedestal"><canvas id="over-avatar" class="pix"></canvas></div>
+<div class="plaque" id="over-plaque"></div>
+<div class="final-word">THE WORD WAS <span id="over-word"></span></div>
+<div class="final-clue dim" id="over-clue"></div>
+</div>
+<div class="panel over-stats" id="over-stats"></div>
+<div class="panel over-memento">
+<h3>MEMENTO</h3>
+<div class="memento"><div id="memento-track"></div></div>
+</div>
+</div>
+<div class="over-actions">
+<button class="btn btn-primary" data-act="play">NEW RUN <kbd>SPACE</kbd></button>
+<button class="btn" data-act="trophies">TROPHY CASE <kbd>T</kbd></button>
+<button class="btn" data-act="export-log">EXPORT PLAYTEST LOG</button>
+<button class="btn" data-act="title">MENU <kbd>ESC</kbd></button>
+</div>
+</section>
+<section id="scr-trophies" class="screen">
+<h2 class="screen-title">TROPHY CASE</h2>
+<div id="trophy-grid"></div>
+<div class="over-actions"><button class="btn" data-act="title">BACK <kbd>ESC</kbd></button></div>
+</section>
+<section id="ov-draft" class="overlay">
+<div class="panel draft-box">
+<h2 id="draft-title">TIER CLEARED</h2>
+<div id="draft-flair" class="draft-flair"></div>
+<div id="draft-sub" class="dim">Press a number to inspect, press it again to take it.</div>
+<div id="draft-cards" class="card-row"></div>
+<div id="draft-replace" class="hidden">
+<div class="dim">Toolbelt full. Replace which perk? (press its number twice) &middot; <kbd>ESC</kbd> to discard the new one</div>
+<div id="draft-belt" class="card-row"></div>
+</div>
+<div class="draft-actions"><button class="btn" data-act="draft-skip">SKIP FOR +<span id="skip-bonus">0</span> PTS <kbd>S</kbd></button></div>
+</div>
+</section>
+<section id="ov-pause" class="overlay">
+<div class="panel modal">
+<h2>PAUSED</h2>
+<div class="menu">
+<button class="btn btn-primary" data-act="resume">RESUME <kbd>ESC</kbd></button>
+<button class="btn" data-act="settings">SETTINGS</button>
+<button class="btn" data-act="help">HOW TO PLAY</button>
+<button class="btn btn-danger" data-act="abandon">ABANDON RUN</button>
+</div>
+</div>
+</section>
+<section id="ov-help" class="overlay">
+<div class="panel modal help">
+<h2>HOW TO PLAY</h2>
+<ul>
+<li>A word is hidden under the tiles. You have <b id="help-secs">60</b> seconds to crack it. Clock hits zero = <b>run over</b>.</li>
+<li><b>Unlimited guesses.</b> Type, then hit <kbd>SPACE</kbd> to submit.</li>
+<li>Type <b>1 letter</b> to guess a letter: every copy flips. A wrong letter costs <b id="help-lp">2</b>s.</li>
+<li>Type the <b>whole word</b> to solve it. Wrong words are free (unless HARDCORE) and any letters in the right spot still flip.</li>
+<li>Nail the whole word on your <b>first guess</b> and the next word starts with <b>+<span id="help-ft">10</span>s</b>.</li>
+<li>Type the whole word fast and watch the <b>KPS</b> meter catch fire.</li>
+<li>The <b>CLUE BOX</b> starts with 1 clue. Another unlocks every <b id="help-clue">15</b>s of clock used (penalties speed that up).</li>
+<li><b>FLAWLESS</b> counts words solved in a row without a wrong guess.</li>
+<li>Every <b id="help-tier">5</b> words: harder tier + pick a <b>perk</b>. Hold 3. <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd>: press once to inspect, again to use.</li>
+<li><kbd>BACKSPACE</kbd> deletes &middot; <kbd>CTRL</kbd>+<kbd>BACKSPACE</kbd> clears &middot; <kbd>ESC</kbd> pause.</li>
+<li>Every <b>tier you clear</b> adds flair to your skull. When you die it goes in the trophy case.</li>
+</ul>
+<button class="btn btn-primary" data-act="close">GOT IT <kbd>ESC</kbd></button>
+</div>
+</section>
+<section id="ov-settings" class="overlay">
+<div class="panel modal settings">
+<h2>SETTINGS</h2>
+<div id="settings-form"></div>
+<div class="menu row">
+<button class="btn" data-act="settings-reset">RESET DEFAULTS</button>
+<button class="btn btn-primary" data-act="close">DONE <kbd>ESC</kbd></button>
+</div>
+</div>
+</section>
+<section id="ov-trophy" class="overlay">
+<div class="panel modal trophy-detail">
+<div class="td-grid">
+<div><canvas id="td-avatar" class="pix"></canvas><div class="plaque" id="td-plaque"></div></div>
+<div class="memento td-memento"><div id="td-track"></div></div>
+</div>
+<div class="menu row"><button class="btn btn-danger" data-act="trophy-delete">DELETE</button><button class="btn btn-primary" data-act="close">CLOSE <kbd>ESC</kbd></button></div>
+</div>
+</section>
+</div>
+<canvas id="fx"></canvas>
+<canvas id="melt" class="pix"></canvas>
+<div id="crt"></div>
+<script>window.HM_RELEASE=true;window.HM_BUILD="v0.4.0 · 2026-11-07 03:27 UTC";</script>
+<script src="js/config.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/words.js"></script>
+<script src="js/wordsource.js"></script>
+<script src="js/hints.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/bg.js"></script>
+<script src="js/forest.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/perks.js"></script>
+<script src="js/game.js"></script>
+<script src="js/trophies.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
