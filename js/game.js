@@ -112,7 +112,7 @@ revealed: new Array(entry.w.length).fill(false), guessed: new Set(), wrong: new 
 timeMax: secs, timeLeft: secs, elapsed: 0, grace: 0.7,
 chips: 0, chipsBonus: 0, multAdd: 0, multX: 1, halfPoints: !!opts.halfPoints,
 buffer: '', guessStartAt: null, freeze: 0, slow: 0, slowFactor: 1, shield: 0, armed: {},
-pinned: [], clueOrder: [], cluesShown: 0, wrongCount: 0, submits: 0, jumble: null, lastWhole: -1, peakKps: 0,
+pinned: [], clueOrder: [], cluesShown: 0, wrongCount: 0, submits: 0, consumed: 0, reserve: 0, jumble: null, lastWhole: -1, peakKps: 0,
 };
 const nClues = Math.min(cfg().clueCount, (entry.h || []).length);
 const order = [...Array(nClues).keys()];
@@ -121,10 +121,10 @@ G.round.cluesShown = nClues ? 1 : 0;
 G.phase = 'playing';
 const bonus = run.bonusNext || 0;
 run.bonusNext = 0;
-if (bonus) G.round.timeLeft += bonus;
+G.round.reserve = bonus;
 bus.emit('round:start', G.round);
 bus.emit('buffer', { buffer: '' });
-if (bonus) bus.emit('time:add', { secs: bonus, src: 'firsttry' });
+if (bonus) bus.emit('time:bank', { secs: bonus });
 prefetchNext();
 }
 function update(dt) {
@@ -138,16 +138,17 @@ else {
 let f = 1;
 if (r.slow > 0) { f = r.slowFactor; r.slow = Math.max(0, r.slow - dt); }
 r.timeLeft -= dt * f;
+r.consumed += dt * f;
 }
 clueCheck();
 const whole = Math.ceil(r.timeLeft);
 if (whole !== r.lastWhole) { r.lastWhole = whole; if (whole <= cfg().lowTimeWarning && whole > 0) bus.emit('tick', { left: whole }); }
 if (r.timeLeft <= 0) timeout();
 }
-function nextClueAt() { const r = G.round; return r.timeMax - r.cluesShown * cfg().clueInterval; }
+function nextClueIn() { const r = G.round; return Math.max(0, r.cluesShown * cfg().clueInterval - r.consumed); }
 function clueCheck() {
 const r = G.round; if (!r) return;
-while (r.cluesShown < r.clueOrder.length && r.timeLeft <= nextClueAt()) showClue('time');
+while (r.cluesShown < r.clueOrder.length && r.consumed >= r.cluesShown * cfg().clueInterval) showClue('time');
 }
 function showClue(src) {
 const r = G.round;
@@ -158,6 +159,11 @@ return true;
 }
 function timeout() {
 const r = G.round;
+if (r.reserve > 0) {
+r.timeLeft = r.reserve; r.reserve = 0; r.lastWhole = -1;
+bus.emit('reserve:used', { secs: r.timeLeft });
+return;
+}
 if (r.armed.phoenix) {
 r.armed.phoenix = false; r.timeLeft = 30; r.lastWhole = -1;
 bus.emit('perk:proc', { id: 'phoenix', text: 'PHOENIX! +30s' });
@@ -263,7 +269,7 @@ penalty('letter', ch);
 function guessWord(g, burst) {
 const r = G.round;
 if (g === r.word) { solve('word', burst); return; }
-if (r.armed.wager) { r.armed.wager = false; bus.emit('perk:proc', { id: 'wager', text: 'WAGER LOST -8s', bad: true }); r.timeLeft -= 8; }
+if (r.armed.wager) { r.armed.wager = false; bus.emit('perk:proc', { id: 'wager', text: 'WAGER LOST -8s', bad: true }); r.timeLeft -= 8; r.consumed += 8; }
 let fresh = [];
 if (cfg().wordGuessRevealsPositions) {
 const pos = []; for (let i = 0; i < r.len; i++) if (g[i] === r.word[i] && !r.revealed[i]) pos.push(i);
@@ -280,6 +286,7 @@ if (r.armed.highroller === 'live') { r.armed.highroller = 'busted'; bus.emit('pe
 let p = kind === 'letter' ? (hc() ? c.hardcoreLetterPenalty : c.wrongLetterPenalty) : (hc() ? c.hardcoreWordPenalty : c.wrongWordPenalty);
 if (r.shield > 0 && p > 0) { r.shield--; bus.emit('miss', { kind, what, penalty: 0, shielded: true, states: letterStates() }); return; }
 r.timeLeft -= p;
+r.consumed += p;
 bus.emit('miss', { kind, what, penalty: p, states: letterStates() });
 clueCheck();
 if (r.timeLeft <= 0) timeout();
@@ -409,7 +416,7 @@ revealFraction(f) {
 const n = Math.max(1, Math.round(f * G.round.len));
 return api.revealPositions(shuffle(hiddenIdx()).slice(0, n));
 },
-addTime(s) { G.round.timeLeft = Math.max(0.5, G.round.timeLeft + s); bus.emit('time:add', { secs: s }); clueCheck(); },
+addTime(s) { const r = G.round; if (s < 0) r.consumed -= s; r.timeLeft = Math.max(0.5, r.timeLeft + s); bus.emit('time:add', { secs: s }); clueCheck(); },
 freeze(s) { G.round.freeze += s; bus.emit('time:freeze', { secs: s }); },
 slow(f, s) { G.round.slow = Math.max(G.round.slow, s); G.round.slowFactor = f; bus.emit('time:slow', { secs: s }); },
 shield(n) { G.round.shield += n; bus.emit('shield', { n: G.round.shield }); },
@@ -482,7 +489,7 @@ bus.emit('target:end', { cancelled: true });
 }
 function setPaused(p) { if (G.phase === 'playing' || G.phase === 'loading' || !p) { G.paused = p; bus.emit('pause', { paused: p }); } }
 return {
-G, nextClueAt, draftBack, newRun, startRound, update, typeLetter, backspace, submit, advance, usePerk, draftChoose, draftReplace, draftSkip,
+G, nextClueIn, draftBack, newRun, startRound, update, typeLetter, backspace, submit, advance, usePerk, draftChoose, draftReplace, draftSkip,
 targetPick, targetCancel, get targeting() { return !!targetCb; }, setPaused, kps, kpsLevel, tierInfo, letterStates,
 gameOver, api,
 };

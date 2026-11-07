@@ -233,7 +233,7 @@ function clueCountdown() {
 const r = Game.G.round; if (!r) return;
 const nx = $('#cb-next');
 if (r.cluesShown >= r.clueOrder.length) { nx.textContent = 'ALL SHOWN'; return; }
-const secs = Math.max(0, r.timeLeft - Game.nextClueAt());
+const secs = Game.nextClueIn();
 nx.textContent = `NEXT IN ${Math.ceil(secs)}s`;
 const slot = $$('#cb-list .cb-item')[r.cluesShown];
 if (slot) { const t = slot.querySelector('.cb-t'); const txt = `UNLOCKS IN ${Math.ceil(secs)}s`; if (t.textContent !== txt) t.textContent = txt; slot.classList.add('next'); }
@@ -321,6 +321,7 @@ fill.classList.toggle('low', low);
 const mods = [];
 if (r.freeze > 0) mods.push(`<div class="mod freeze">FROZEN ${r.freeze.toFixed(1)}</div>`);
 if (r.slow > 0) mods.push(`<div class="mod slow">SLOW ${r.slow.toFixed(0)}</div>`);
+if (r.reserve > 0) mods.push(`<div class="mod armed">+${Math.round(r.reserve)}s BANKED</div>`);
 if (r.shield > 0) mods.push(`<div class="mod shield">SHIELD ${r.shield > 99 ? '∞' : r.shield}</div>`);
 for (const [k, v] of Object.entries(r.armed)) if (v && v !== 'busted') mods.push(`<div class="mod armed">${k.toUpperCase()}</div>`);
 const html = mods.join('');
@@ -442,8 +443,14 @@ if (isFinite(j.until)) S.jumbleTimer = setTimeout(() => e.classList.add('hidden'
 bus.on('xray', d => { const t = $('#tiles'); t.classList.add('xray'); setTimeout(() => t.classList.remove('xray'), d.secs * 1000); FX.flash('rgba(160,255,255,0.15)', d.secs); });
 bus.on('time:add', d => {
 const c = FX.centerOf($('#timer'));
-FX.floatText((d.secs > 0 ? '+' : '') + d.secs + 's' + (d.src === 'firsttry' ? ' FIRST-TRY BONUS' : ''), c.x, c.y - 20, d.secs > 0 ? 'gold' : 'bad');
+FX.floatText((d.secs > 0 ? '+' : '') + d.secs + 's', c.x, c.y - 20, d.secs > 0 ? 'gold' : 'bad');
 if (d.secs > 0) FX.burst(c.x, c.y, 20, { colors: ['#ffd166', '#fff3b0'] });
+});
+bus.on('time:bank', d => { setTimeout(() => toast(`FIRST-TRY BONUS: +${d.secs}s BANKED`, 'gold'), 600); });
+bus.on('reserve:used', d => {
+const c = FX.centerOf($('#timer'));
+FX.floatText(`+${Math.round(d.secs)}s BONUS TIME!`, c.x, c.y - 20, 'gold'); FX.burst(c.x, c.y, 30, { colors: ['#ffd166', '#fff3b0'] });
+FX.flash('rgba(255,209,102,0.3)', 0.4); Au.perkUse(); quip('perk', 1);
 });
 bus.on('time:freeze', () => { Au.freeze(); FX.flash('rgba(155,231,255,0.25)', 0.4); });
 bus.on('time:slow', () => { Au.freeze(); });
@@ -499,7 +506,7 @@ const tc2 = FX.centerOf($('#tiles')); FX.ring(tc2.x, tc2.y, '#ffd166', 8, 0.7);
 const scoring = HM.feature('Scoring');
 const kpsTag = ['', 'HOT HANDS', 'ON FIRE', 'INFERNO'][d.kpsLevel];
 const statLine = d.method === 'skip' ? '' : `${d.rec.secs}s · ${d.kps.toFixed(1)} KPS${d.rec.wrong ? ` · ${d.rec.wrong} miss${d.rec.wrong > 1 ? 'es' : ''}` : ' · FLAWLESS'}`;
-const notes = scoring ? d.notes.join(' · ') : [kpsTag, d.firstTry ? `+${d.bonus}s ON THE NEXT WORD` : ''].filter(Boolean).join(' · ');
+const notes = scoring ? d.notes.join(' · ') : [kpsTag, d.firstTry ? `+${d.bonus}s BANKED FOR THE NEXT WORD` : ''].filter(Boolean).join(' · ');
 const flair = d.tierClear && d.flourishes.length ? `<div class="sb-flair">TIER CLEARED · NEW FLAIR: ${d.flourishes.map(id => (HM.Avatar.BY_ID[id] || {}).name || id).join(' + ').toUpperCase()}</div>` : (d.tierClear ? '<div class="sb-flair">TIER CLEARED</div>' : '');
 ban.innerHTML = `<div class="sb-title">${title}</div>` +
 (scoring && d.method !== 'skip' ? `<div class="sb-score"><span class="chips">${fmt(d.chips)}</span><span>X</span><span class="mult">${d.mult}</span></div><div class="sb-total">+${fmt(d.score)}</div>` : '') +
