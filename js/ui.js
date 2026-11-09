@@ -73,7 +73,8 @@ const b = document.querySelector(`#keyboard .key[data-k="${k === ' ' ? ' ' : k}"
 if (!b) return; b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 90);
 }
 function sizeTiles(len) {
-const avail = Math.max(200, $('#stage').clientWidth - 24);
+const st = $('#stage'), w = st.clientWidth || ($('#tiles').clientWidth + 24) || $('#frame').clientWidth;
+const avail = Math.max(200, w - 24);
 const ts = Math.max(24, Math.floor(Math.min(64, avail / (len * 1.16))));
 $('#tiles').style.setProperty('--ts', ts + 'px');
 const bs = Math.max(14, Math.min(26, Math.floor(avail / (len * 1.2))));
@@ -181,8 +182,9 @@ function placeSpeech() {
 const sp = $('#speech'), av = $('#avatar'), ce = $('#center');
 if (!sp || !av || !S.avatar) return;
 const a = av.getBoundingClientRect(), c = ce.getBoundingClientRect(), h = S.avatar.headAnchor();
-sp.style.left = Math.round(a.left - c.left + a.width * h.x) + 'px';
-sp.style.top = Math.round(a.top - c.top + a.height * h.y) + 'px';
+const k = (HM.Fit && HM.Fit.scale) || 1;
+sp.style.left = Math.round((a.left - c.left + a.width * h.x) / k) + 'px';
+sp.style.top = Math.round((a.top - c.top + a.height * h.y) / k) + 'px';
 }
 function say(text, opts = {}) {
 SP.queue.push({ text, tag: opts.tag || '', taunt: !!opts.taunt, hold: opts.hold });
@@ -239,9 +241,10 @@ const r = Game.G.round; if (!r) return;
 const nx = $('#cb-next');
 if (r.cluesShown >= r.clueOrder.length) { nx.textContent = 'ALL SHOWN'; return; }
 const secs = Game.nextClueIn();
-nx.textContent = `NEXT IN ${Math.ceil(secs)}s`;
+const mm = '0:' + String(Math.ceil(secs)).padStart(2, '0');
+nx.textContent = `NEXT IN ${mm}`;
 const slot = $$('#cb-list .cb-item')[r.cluesShown];
-if (slot) { const t = slot.querySelector('.cb-t'); const txt = `UNLOCKS IN ${Math.ceil(secs)}s`; if (t.textContent !== txt) t.textContent = txt; slot.classList.add('next'); }
+if (slot) { const t = slot.querySelector('.cb-t'); const txt = `UNLOCKS IN ${mm}`; if (t.textContent !== txt) t.textContent = txt; slot.classList.add('next'); }
 }
 function renderBelt(fresh) {
 const belt = $('#belt'); belt.innerHTML = '';
@@ -269,9 +272,10 @@ tt.classList.remove('hidden');
 const card = $$('#belt .perk-card')[slot];
 const stage = $('#scr-game').getBoundingClientRect();
 if (card) {
-const r = card.getBoundingClientRect();
-tt.style.left = Math.max(8, r.left - stage.left + r.width / 2 - 130) + 'px';
-tt.style.top = (r.bottom - stage.top + 20) + 'px';
+const r = card.getBoundingClientRect(), k = (HM.Fit && HM.Fit.scale) || 1;
+const x = (r.left - stage.left + r.width / 2) / k - tt.offsetWidth / 2;
+tt.style.left = Math.round(Math.max(8, Math.min(x, $('#scr-game').clientWidth - tt.offsetWidth - 8))) + 'px';
+tt.style.top = Math.round((r.bottom - stage.top) / k + 20) + 'px';
 }
 S.inspect = slot; S.inspectTimer = 6;
 $$('#belt .perk-card').forEach((c, i) => c.classList.toggle('inspect', i === slot));
@@ -370,6 +374,7 @@ S.avatar.setMode(run.avatar); S.avatar.setFlourishes([]); S.avatar.dead = false;
 renderBelt();
 });
 bus.on('round:start', r => {
+if (HM.Fit) requestAnimationFrame(() => HM.Fit.apply());
 buildTiles(r.word);
 tickerReset(r.entry);
 hushSpeech();
@@ -440,6 +445,7 @@ if (d.positions.length) toast(`${d.positions.length} IN THE RIGHT SPOT`, 'good')
 shiverHidden();
 });
 bus.on('clue', d => {
+requestAnimationFrame(() => { const cb = $('#cluebox'); if (cb) cb.scrollTop = cb.scrollHeight; });
 const slot = $$('#cb-list .cb-item')[d.n - 1];
 if (slot) {
 slot.className = 'cb-item open fresh';
@@ -656,6 +662,7 @@ g.appendChild(c);
 const SETTINGS = [
 ...(window.HM_RELEASE ? [] : [['sec', 'FEATURE FLAGS'], ['featureScoring', 'Scoring (points, score perks)', 'bool'], ['featureSwirlBg', 'Swirl background (reload)', 'bool'], ['featureFirstTryBonus', 'First-try time bonus (banked)', 'bool'], ['featureLetterGuesses', 'Letter guesses (1 letter + SPACE)', 'bool'], ['wrongLetterPenalty', 'Wrong letter penalty (s)', 'num'], ['hardcoreLetterPenalty', 'Hardcore: wrong letter (s)', 'num'], ['wordGuessRevealsPositions', 'Wrong words flip right-spot letters', 'bool']]),
 ['sec', 'LOOK'],
+['textScale', 'Text size (%)', 'num'],
 ['theme', 'Theme / skin', 'select'],
 ['crt', 'CRT scanlines', 'bool'], ['screenShake', 'Screen shake', 'bool'], ['fxIntensity', 'FX intensity (0-2)', 'num'],
 ['sec', 'SOUND'], ['sound', 'Sound', 'bool'], ['volume', 'Volume (0-1)', 'num'],
@@ -707,7 +714,15 @@ if (S.inspect >= 0) { S.inspectTimer -= dt; if (S.inspectTimer <= 0) hideTooltip
 }
 function init() {
 buildKeyboard();
-window.addEventListener('resize', () => { const r = Game.G.round; if (r && $('#scr-game').classList.contains('active')) { sizeTiles(r.len); placeSpeech(); } });
+const skullScale = () => {
+const av = $('#avatar'), ce = $('#center'); if (!av || !ce || !av.offsetHeight) return;
+const k = (HM.Fit && HM.Fit.scale) || 1, row = (HM.Fit && HM.Fit.portrait ? 280 : ce.offsetHeight) * k, box = av.offsetHeight * k;
+const m = row >= 360 ? 4 : row >= 240 ? 3 : 2;
+av.style.setProperty('--av-k', Math.min(2.2, (m * 96 / box)).toFixed(4));
+};
+const relayout = () => { const r = Game.G.round; if (r && $('#scr-game').classList.contains('active')) { av_k_reset(); sizeTiles(r.len); skullScale(); placeSpeech(); if (S.inspect != null && !$('#tooltip').classList.contains('hidden')) showTooltip(S.inspect); } };
+function av_k_reset() { const av = $('#avatar'); if (av) av.style.removeProperty('--av-k'); }
+if (HM.Fit) HM.Fit.onChange(relayout); else window.addEventListener('resize', relayout);
 S.avatar = HM.Avatar.create($('#avatar'), { mode: 'skull' });
 wire();
 }

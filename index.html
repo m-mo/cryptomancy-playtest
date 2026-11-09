@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>CRYPTOMANCY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/compact.css">
 </head>
 <body data-theme="crypt">
 <canvas id="bg" class="pix"></canvas>
-<div id="app">
+<div id="sa-probe"></div>
+<div id="app"><div id="frame">
 <section id="scr-title" class="screen active">
 <div class="title-wrap">
 <h1 class="logo" data-theme-text="title"><span>CRYPTO</span><span class="logo-skull"></span><span>MANCY</span></h1>
@@ -191,12 +193,13 @@
 <div class="menu row"><button class="btn btn-danger" data-act="trophy-delete">DELETE</button><button class="btn btn-primary" data-act="close">CLOSE <kbd>ESC</kbd></button></div>
 </div>
 </section>
-</div>
+</div></div>
 <canvas id="fx"></canvas>
 <canvas id="melt" class="pix"></canvas>
 <div id="crt"></div>
-<script>window.HM_RELEASE=true;window.HM_BUILD="v0.5.1 · 2026-11-09 04:12 UTC";</script>
+<script>window.HM_RELEASE=true;window.HM_BUILD="v0.6.1 · 2026-11-09 15:48 UTC";</script>
 <script src="js/config.js"></script>
+<script src="js/fit.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/words.js"></script>
 <script src="js/wordsource.js"></script>

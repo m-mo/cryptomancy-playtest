@@ -38,6 +38,8 @@ function resume() { Game.setPaused(false); document.body.classList.remove('pause
 function applyConfig() {
 const c = HM.config;
 HM.Themes.apply(c.theme);
+document.documentElement.style.setProperty('--tx', (c.textScale || 100) / 100);
+if (HM.Fit) HM.Fit.apply();
 document.body.classList.toggle('no-scoring', !c.featureScoring);
 $('#crt').style.display = c.crt ? '' : 'none';
 Au.setVolume(c.volume);

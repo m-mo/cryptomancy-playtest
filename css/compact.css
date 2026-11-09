@@ -1,0 +1,306 @@
+html.compact #frame > * {
+--c-pad: 6px;
+--c-gap: 6px;
+--kg: 5px;
+--kh: clamp(44px, 6.4cqh, 58px);
+--hud: clamp(56px, 13cqh, 120px);
+--ts-max: clamp(34px, 6.4cqh, 58px);
+}
+@media (pointer: fine) {
+html.compact #frame > * { --kh: clamp(32px, 5.4cqh, 46px); }
+}
+@media (pointer: coarse) {
+html.compact .btn kbd, html.compact .hc-toggle kbd { display: none; }
+}
+html.compact .btn { min-height: 40px; }
+@media (pointer: coarse) { html.compact .btn { min-height: 44px; } }
+html.compact h2, html.compact .screen-title { font-size: 22px; margin-bottom: 8px; }
+html.compact #scr-game.active {
+display: grid; padding: var(--c-pad); gap: var(--c-gap);
+grid-template-columns: auto auto minmax(0, 1fr);
+grid-template-rows: auto auto minmax(0, 1fr) var(--hud) minmax(64px, max-content) auto auto auto auto;
+grid-template-areas:
+"side side side"
+"belt belt belt"
+". . . "
+"timer skull bub"
+"clue clue clue"
+"jumb jumb jumb"
+"tiles tiles tiles"
+"buf buf buf"
+"kb kb kb";
+}
+html.compact #stage, html.compact #center { display: contents; }
+html.compact #side { grid-area: side; }
+html.compact #belt { grid-area: belt; }
+html.compact #timer-wrap { grid-area: timer; }
+html.compact #avatar { grid-area: skull; }
+html.compact #speech { grid-area: bub; }
+html.compact #cluebox { grid-area: clue; }
+html.compact #jumble { grid-area: jumb; }
+html.compact #tiles { grid-area: tiles; }
+html.compact #buffer-wrap { grid-area: buf; }
+html.compact #keyboard { grid-area: kb; }
+html.compact body.paused #stage > *, html.compact body.paused #center > * { filter: blur(3px); }
+html.compact #side { width: auto; flex-direction: row; flex-wrap: nowrap; gap: var(--c-gap); align-items: stretch; }
+html.compact #side .panel { flex: 1 1 0; min-width: 0; padding: 3px 8px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+html.compact #side .stats { display: none; }
+html.compact .tier-label { font-size: 16px; line-height: 1.05; white-space: nowrap; }
+html.compact .level-label { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.compact .hc-badge { font-size: 9px; padding: 1px 4px; margin-top: 2px; align-self: flex-start; }
+html.compact #side .lbl { font-size: 10px; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.compact #side .big { font-size: 18px; line-height: 1.1; text-shadow: 2px 2px 0 var(--ink-shadow); white-space: nowrap; }
+html.compact .kps-panel .sub { display: none; }
+html.compact .cm { gap: 3px; margin-top: 1px; }
+html.compact .chips, html.compact .mult { font-size: 14px; padding: 1px 2px; }
+html.compact .cm .x { font-size: 11px; }
+html.compact #side .side-head { flex-grow: 1.35; text-align: left; }
+html.compact .kps-bar { height: 3px; margin: 2px 0 0; }
+html.compact #side .btn { flex: none; align-self: stretch; width: 44px; min-height: 0; padding: 0; font-size: 0; display: flex; align-items: center; justify-content: center; gap: 0; }
+html.compact #side .btn kbd { display: none; }
+html.compact #side .btn::before { content: ''; width: 5px; height: 16px; background: currentColor; box-shadow: 9px 0 0 currentColor; margin-right: 9px; }
+html.compact body:not(.no-scoring) #side { flex-wrap: wrap; }
+html.compact body:not(.no-scoring) #side .panel { flex-basis: 28%; }
+html.compact #belt { width: auto; min-height: 0; gap: var(--c-gap); padding: 0; }
+html.compact #belt .perk-card {
+flex: 1 1 0; min-width: 0; width: auto; height: 46px; padding: 3px 5px; border-width: 2px;
+flex-direction: row; align-items: center; justify-content: flex-start; gap: 6px; text-align: left;
+}
+html.compact #belt .perk-card .ico { width: 28px; height: 28px; flex: none; }
+html.compact #belt .perk-card .pname { font-size: 11px; line-height: 1.1; text-align: left; overflow-wrap: normal; word-break: normal; min-width: 0; }
+html.compact #belt .perk-card .plvl { top: auto; bottom: 1px; right: 3px; font-size: 10px; }
+html.compact #belt .perk-card .pkey { top: -5px; left: -5px; bottom: auto; translate: none; font-size: 11px; padding: 0 4px; line-height: 1.35; }
+html.compact #belt .perk-card.empty { justify-content: center; padding-right: 5px; }
+html.compact #belt .perk-card.empty .pname { text-align: center; }
+@media (pointer: coarse) { html.compact #belt .pkey { display: none; } }
+html.compact .tooltip { width: min(260px, calc(100cqw - 16px)); }
+html.compact #timer-wrap { flex-direction: column; justify-self: start; align-self: center; margin: 0; gap: 3px; padding-left: 2px; }
+html.compact #timer { font-size: 32px; line-height: 1; min-width: 0; }
+html.compact #timer-bar { width: 76px; height: 9px; }
+html.compact #timer-mods { flex-direction: row; flex-wrap: wrap; justify-content: center; max-width: 110px; }
+html.compact .mod { font-size: 9px; padding: 1px 4px; }
+html.compact #avatar {
+width: calc(var(--hud) * 2); height: calc(var(--hud) * 1.1); max-height: none; aspect-ratio: auto;
+object-fit: cover; object-position: 50% 33%;
+margin: calc(var(--hud) * -.1) calc(var(--hud) * -.5) 0;
+align-self: start; justify-self: center; transform: none; pointer-events: none;
+}
+html.compact #speech {
+left: 12px !important; top: auto !important; bottom: 2px; right: auto;
+max-width: calc(100% - 12px); min-width: 0; width: max-content;
+translate: none; transform-origin: 0 70%; padding: 5px 10px 6px;
+}
+html.compact .speech .sp-tag { font-size: 10px; margin-bottom: 1px; }
+html.compact .speech .sp-text { font-size: calc(17px * min(var(--tx, 1), 1.5)); line-height: 1.12; }
+html.compact .speech::after {
+left: -14px; bottom: calc(var(--hud) * .5 - 13px); translate: none;
+border: 11px solid transparent; border-left: 0; border-right: 14px solid var(--ink-shadow);
+}
+html.compact .speech::before {
+left: -9px; bottom: calc(var(--hud) * .5 - 10px); translate: none;
+border: 8px solid transparent; border-left: 0; border-right: 10px solid var(--tile-face);
+}
+html.compact .speech.taunt::before { border-top-color: transparent; border-right-color: #2a0a12; }
+html.compact .speech.out { animation: cmpSpOut .3s ease-in forwards; }
+@keyframes cmpSpOut { to { scale: .6; opacity: 0; } }
+html.compact #cluebox {
+width: auto; max-width: none; justify-self: stretch; align-self: end; margin: 0;
+min-height: 0; max-height: 100%; overflow: hidden; padding: 6px 8px 4px; display: flex; flex-direction: column;
+}
+html.compact #cluebox > * { flex: none; }
+html.compact #cb-list { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column-reverse; }
+html.compact #cb-list > :nth-child(1) { order: 4; }
+html.compact #cb-list > :nth-child(2) { order: 3; }
+html.compact #cb-list > :nth-child(3) { order: 2; }
+html.compact #cb-list > :nth-child(4) { order: 1; }
+html.compact .cb-item.locked:not(.next) { display: none; }
+html.compact .cb-head { margin-bottom: 4px; }
+html.compact .cb-head, html.compact .cb-head .dim { font-size: 12px; }
+html.compact .cb-item { font-size: calc(var(--clue, 18px) * var(--tx, 1)); line-height: 1.1112; padding: 4px 6px; margin-bottom: 4px; gap: 6px; }
+html.compact .cb-item.locked { font-size: 11px; padding: 3px 6px; }
+html.compact .cb-n { font-size: 11px; margin-top: 1px; }
+html.compact .pin { font-size: calc(15px * var(--tx, 1)); padding: 2px 6px; }
+html.compact #tiles { width: auto; max-width: none; flex-wrap: nowrap; justify-content: center; align-self: center; gap: clamp(3px, 1.1cqw, 8px); padding: 2px 2px 6px; }
+html.compact #tiles .tile { flex: 0 1 var(--ts-max); width: auto; min-width: 0; height: auto; aspect-ratio: 1 / 1.08; container-type: inline-size; }
+html.compact #tiles .tile > * { --ts: 100cqw; }
+html.compact #jumble { justify-self: center; max-width: 100%; overflow-wrap: anywhere; text-align: center; font-size: 20px; letter-spacing: 4px; }
+html.compact #buffer-wrap { min-height: 0; gap: 1px; margin: 0; }
+html.compact #buffer { min-height: calc(var(--bs, 26px) * 1.25); }
+html.compact .caret { height: calc(var(--bs, 26px) * 1.05); }
+html.compact #buffer-mode { font-size: calc(12px * min(var(--tx, 1), 1.5)); line-height: 1.2; }
+html.compact #buffer-mode.hint { font-size: calc(13px * min(var(--tx, 1), 1.4)); letter-spacing: 1px; }
+html.compact #keyboard { width: 100%; max-width: 620px; justify-self: center; align-self: end; align-items: stretch; gap: var(--kg); padding: 0; }
+html.compact .krow { width: 100%; gap: var(--kg); justify-content: center; }
+html.compact .krow:nth-child(2) { padding: 0 5%; }
+html.compact .key { flex: 1 1 0; width: auto; min-width: 0; height: var(--kh); font-size: 16px; touch-action: manipulation; }
+html.compact .key.wide { flex-grow: 1.5; font-size: 11px; }
+html.compact .key.space { flex: 0 1 66%; font-size: 12px; }
+html.compact #toasts { right: 8px; top: 104px; }
+html.compact .toast { font-size: 12px; padding: 4px 8px; }
+html.compact #solve-banner { max-width: calc(100% - 16px); padding: 10px 16px 9px; }
+html.compact #solve-banner .sb-title { font-size: 30px; }
+html.compact #solve-banner .sb-score { font-size: 20px; }
+html.compact #solve-banner .sb-total { font-size: 26px; }
+html.compact #solve-banner .sb-stat { font-size: 15px; }
+@container frame (orientation: landscape) {
+html.compact #frame > * { --kbw: clamp(300px, 48cqw, 500px); --hud: clamp(52px, 22cqh, 130px); --ts-max: clamp(30px, 12cqh, 54px); --tmw: 84px; --clue: clamp(18px, 4.2cqh, 22px); }
+html.compact #scr-game.active {
+grid-template-columns: minmax(0, 1fr) var(--tmw) var(--hud) calc(var(--kbw) - var(--tmw) - var(--hud) - 2 * var(--c-gap));
+grid-template-rows: auto var(--hud) minmax(0, 1fr) auto auto auto;
+grid-template-areas:
+"side belt belt belt"
+"clue timer skull bub"
+"clue kb kb kb"
+"jumb kb kb kb"
+"tiles kb kb kb"
+"buf kb kb kb";
+}
+html.compact #timer-wrap { justify-self: center; }
+html.compact #toasts { top: 4px; right: 8px; }
+html.compact .speech .sp-text { font-size: calc(17px * min(var(--tx, 1), 1.25)); }
+html.compact #buffer-wrap { flex-direction: row; justify-content: center; gap: 10px; }
+html.compact #keyboard { max-width: none; }
+html.compact body:not(.no-scoring) #side { flex-wrap: nowrap; gap: 5px; }
+html.compact body:not(.no-scoring) #side .panel { flex: 1 1 auto; padding: 3px 6px; }
+html.compact body:not(.no-scoring) #side .big { font-size: 16px; }
+html.compact body:not(.no-scoring) #side .cm-panel { flex-shrink: 0; }
+}
+@container frame (orientation: landscape) and (min-width: 900px) {
+html.compact #scr-game.active {
+grid-template-rows: auto var(--hud) minmax(0, 1fr) auto auto auto auto;
+grid-template-areas:
+"side belt belt belt"
+"clue timer skull bub"
+"clue kb kb kb"
+"jumb kb kb kb"
+"tiles kb kb kb"
+"buf kb kb kb"
+"tick kb kb kb";
+}
+html.compact #ticker { grid-area: tick; width: auto; margin: 0; }
+}
+@media (pointer: coarse) {
+@container frame (orientation: landscape) { html.compact #frame > * { --kh: clamp(44px, 12.5cqh, 54px); } }
+}
+@media (pointer: fine) {
+@container frame (orientation: landscape) { html.compact #frame > * { --kh: clamp(30px, 9.5cqh, 48px); } }
+}
+@container frame (orientation: portrait) and (max-height: 620px) {
+html.compact #frame > * { --c-pad: 4px; --c-gap: 5px; --hud: 46px; --ts-max: 36px; --kh: 44px; }
+html.compact .kps-bar { display: none; }
+html.compact #belt .perk-card { height: 40px; }
+html.compact #buffer-wrap { flex-direction: row; justify-content: center; gap: 10px; }
+html.compact .tier-label { font-size: 14px; }
+}
+@container frame (orientation: portrait) and (max-height: 520px) {
+html.compact #frame > * { --hud: 40px; --ts-max: 32px; }
+}
+@container frame (orientation: landscape) and (max-width: 699px) {
+html.compact #frame > * { --tmw: 66px; }
+html.compact #timer { font-size: 26px; }
+html.compact #timer-bar { width: 60px; }
+}
+@container frame (orientation: portrait) and (max-height: 720px) {
+html.compact body:not(.no-scoring) #frame > * { --hud: 50px; }
+html.compact body:not(.no-scoring) .kps-bar { display: none; }
+}
+html.compact #scr-title.active { overflow-y: auto; padding: 12px; }
+html.compact .title-wrap { margin: auto; gap: 8px; max-width: 100%; }
+html.compact .logo { font-size: clamp(22px, 8.2cqw, 64px); letter-spacing: 1px; text-shadow: 3px 3px 0 var(--accent), 6px 6px 0 var(--ink-shadow); }
+html.compact .subtitle { font-size: 11px; letter-spacing: 2px; text-align: center; }
+html.compact .title-avatar { width: clamp(96px, 22cqh, 192px); height: clamp(96px, 22cqh, 192px); margin: 0; }
+html.compact #scr-title .menu { min-width: min(280px, calc(100cqw - 24px)); gap: 8px; }
+html.compact .foot { font-size: 13px; text-align: center; margin-top: 2px; }
+@container frame (orientation: landscape) {
+html.compact .title-wrap {
+display: grid; grid-template-columns: auto auto; column-gap: 28px; row-gap: 8px; align-items: center; justify-items: center;
+grid-template-areas: "logo logo" "sub sub" "av menu" "foot foot";
+}
+html.compact .logo { grid-area: logo; }
+html.compact .subtitle { grid-area: sub; }
+html.compact .title-avatar { grid-area: av; width: clamp(96px, 44cqh, 192px); height: clamp(96px, 44cqh, 192px); }
+html.compact #scr-title .menu { grid-area: menu; }
+html.compact .foot { grid-area: foot; }
+}
+html.compact #scr-select.active { justify-content: flex-start; overflow-y: auto; padding: 12px; gap: 10px; }
+html.compact #scr-select > :first-child { margin-top: auto; }
+html.compact #scr-select > :last-child { margin-bottom: auto; }
+html.compact .vessels { gap: 12px; width: 100%; justify-content: center; padding-top: 10px; }
+html.compact .vessel { width: auto; flex: 1 1 0; max-width: 260px; padding: 8px; }
+html.compact .vessel canvas { width: min(36cqw, 34cqh, 224px); height: min(36cqw, 34cqh, 224px); }
+html.compact .vessel .v-name { font-size: 14px; }
+html.compact .vessel .v-desc { font-size: 14px; min-height: 0; line-height: 1.15; }
+html.compact .hint-line { font-size: 13px; text-align: center; }
+html.compact .hc-toggle { font-size: 12px; flex-wrap: wrap; justify-content: center; text-align: center; padding: 6px 4px; }
+html.compact .hc-toggle input { width: 20px; height: 20px; }
+@media (pointer: coarse) {
+html.compact .hint-line { font-size: 0; }
+html.compact .hint-line kbd { display: none; }
+html.compact .hint-line::after { content: 'TAP A VESSEL \00B7 TAP AGAIN TO BEGIN'; font-family: var(--font-display); font-size: 12px; letter-spacing: 1px; }
+}
+html.compact #scr-over.active { justify-content: flex-start; padding: 8px; gap: 8px; }
+html.compact .over-grid {
+flex: 1 1 auto; min-height: 0; height: auto; width: 100%; overflow-y: auto; overscroll-behavior: contain;
+grid-template-columns: 1fr; gap: 8px; align-content: start;
+}
+html.compact .over-grid > .panel { padding: 8px 10px; }
+html.compact .over-title { font-size: 28px; margin-bottom: 4px; }
+html.compact #over-avatar { width: clamp(96px, 24cqh, 200px); height: clamp(96px, 24cqh, 200px); }
+html.compact .pedestal { padding: 2px 20px 0; }
+html.compact .plaque { font-size: 12px; padding: 4px 10px; }
+html.compact .final-word { margin-top: 8px; font-size: 12px; }
+html.compact .final-word span { font-size: 24px; }
+html.compact .final-clue { font-size: 15px; }
+html.compact .over-stats { gap: 6px; }
+html.compact .stat { padding: 5px 8px; }
+html.compact .stat .lbl { font-size: 10px; }
+html.compact .stat .v { font-size: 18px; }
+html.compact .over-memento { height: 180px; }
+html.compact .mem .w { font-size: 15px; }
+html.compact .mem .m { font-size: 13px; }
+html.compact .over-actions { flex-wrap: wrap; gap: 8px; flex: none; }
+html.compact .over-actions .btn { font-size: 13px; padding: 8px 12px; flex: 1 1 40%; max-width: 260px; }
+@container frame (orientation: landscape) {
+html.compact .over-grid { grid-template-columns: 1.1fr 1fr 1fr; align-content: stretch; }
+html.compact .over-grid > .panel { min-height: 0; overflow-y: auto; }
+html.compact .over-memento { height: auto; overflow: hidden; }
+html.compact #over-avatar { width: clamp(72px, 26cqh, 200px); height: clamp(72px, 26cqh, 200px); }
+html.compact .over-actions .btn { flex: 0 1 auto; }
+}
+html.compact #scr-trophies.active { padding: 8px; gap: 8px; }
+html.compact #trophy-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; padding: 2px; }
+html.compact .trophy img { width: 96px; height: 96px; }
+html.compact .trophy .ts { font-size: 14px; }
+html.compact .trophy .tl { font-size: 12px; }
+html.compact .overlay { padding: 8px; }
+html.compact .modal {
+min-width: 0; width: min(560px, 100%); max-width: 100%; max-height: 100%; padding: 12px 14px;
+overflow: hidden;
+}
+html.compact .modal > * { flex: none; }
+html.compact .modal .menu { min-width: min(280px, 100%); gap: 8px; }
+html.compact .help ul { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; font-size: 16px; line-height: 1.25; margin-bottom: 10px; padding-right: 4px; }
+html.compact .help li { margin-bottom: 5px; }
+html.compact .settings #settings-form { flex: 1 1 auto; min-height: 0; max-height: none; gap: 6px 12px; }
+html.compact .settings label { font-size: 15px; }
+html.compact .settings input[type=number], html.compact .settings select { min-height: 32px; font-size: 14px; }
+html.compact .settings .menu.row { margin-top: 10px; flex-wrap: wrap; }
+html.compact .draft-box { width: min(760px, 100%); max-height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: 12px 10px; }
+html.compact #draft-title { margin-bottom: 4px; }
+html.compact #draft-sub { font-size: 14px; }
+html.compact #draft-cards { margin: 14px 0 16px; }
+html.compact #draft-cards.card-row, html.compact #draft-belt.card-row { gap: 8px; }
+html.compact #draft-cards .perk-card, html.compact #draft-belt .perk-card { flex: 1 1 80px; max-width: 200px; width: auto; height: auto; min-height: 150px; padding: 10px 6px 16px; gap: 6px; }
+html.compact #draft-cards .perk-card .ico, html.compact #draft-belt .perk-card .ico { width: 40px; height: 40px; }
+html.compact #draft-cards .perk-card .pname, html.compact #draft-belt .perk-card .pname { font-size: 13px; }
+html.compact .pdesc { font-size: 14px; }
+html.compact #draft-replace { margin-bottom: 12px; }
+html.compact .trophy-detail { width: min(860px, 100%); }
+html.compact .td-grid { grid-template-columns: 1fr; height: auto; min-height: 0; flex: 1 1 auto; gap: 10px; justify-items: center; }
+html.compact #td-avatar { width: min(36cqh, 60cqw, 260px); height: min(36cqh, 60cqw, 260px); margin: 0 auto 6px; }
+html.compact .td-memento { height: 26cqh; width: 100%; }
+@container frame (orientation: landscape) {
+html.compact .td-grid { grid-template-columns: auto minmax(180px, 1fr); height: min(66cqh, 420px); align-items: center; }
+html.compact #td-avatar { width: min(48cqh, 260px); height: min(48cqh, 260px); }
+html.compact .td-memento { height: 100%; }
+}
